@@ -236,7 +236,7 @@ Consider using community VMware-based implementations that may offer performance
 
 ## 🚧 Other Implementations
 
- - [yangpei-comp/macOSWorld](https://github.com/yangpei-comp/macosworld): faster and cheaper; local VMware deployment
+ - [yangpei-comp/macosworld_vmware](https://github.com/yangpei-comp/macosworld_vmware): faster and cheaper; local VMware deployment
 
 <br/>
 
