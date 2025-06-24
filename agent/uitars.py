@@ -8,6 +8,7 @@ import json
 from utils.timeout import timeout
 import time
 import re
+from constants import SCREEN_WIDTH, SCREEN_HEIGHT
 
 
 # https://github.com/bytedance/UI-TARS
@@ -150,8 +151,8 @@ class UITARS_GUI_AGENT:
                 parts = inner.split(',')
                 if len(parts) != 2:
                     raise ValueError("Coordinate does not contain exactly two values.")
-                x = int(parts[0].strip())
-                y = int(parts[1].strip())
+                x = int(int(parts[0].strip()) / 1000 * SCREEN_WIDTH)
+                y = int(int(parts[1].strip()) / 1000 * SCREEN_HEIGHT)
                 return (x, y)
             else:
                 raise ValueError("Coordinate does not start with '(' and end with ')'.")
