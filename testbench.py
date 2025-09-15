@@ -1,6 +1,7 @@
 import os
 import json
 import shutil
+import socket
 import argparse
 
 from utils.log import print_message
@@ -32,6 +33,8 @@ parser.add_argument('--max-steps', type=int, default=15)
 parser.add_argument('--base_save_dir', type=str, default='./results')
 parser.add_argument('--paths_to_eval_tasks', nargs='+', required=True)
 parser.add_argument('--languages', nargs='+', required=True)
+
+parser.add_argument('--port', type=int, default=None)
 
 arguments = parser.parse_args()
 
@@ -160,3 +163,8 @@ for task_language, env_language in language_combinations:
             fail_flag_path = os.path.join(save_dir, 'fail.flag')
             with open(fail_flag_path, 'w'):
                 pass
+
+if arguments.port is not None:
+    s = socket.create_connection(("127.0.0.1", arguments.port))
+    s.sendall(b"DONE")
+    s.close()

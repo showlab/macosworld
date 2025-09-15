@@ -1,10 +1,12 @@
 import os
 import shutil
+from utils.log import print_message
 import argparse
 
 def clean_directories(base_save_dir):
     # Check if the directory exists
     if not os.path.isdir(base_save_dir):
+        return
         raise ValueError(f'Directory does not exist: {base_save_dir}')
     # Iterate through each item in the base directory
     for category_dir in os.listdir(base_save_dir):
@@ -21,7 +23,7 @@ def clean_directories(base_save_dir):
                     # Check if there is at least one .txt file in the subdirectory
                     if not any(file.endswith('.txt') for file in files):
                         # If no .txt files are found, delete the subdirectory
-                        print(f"Deleting: {subdirectory_path}")
+                        print_message(f"Deleting: {subdirectory_path}", title = 'cleanup.py')
                         shutil.rmtree(subdirectory_path)
 
 if __name__ == "__main__":

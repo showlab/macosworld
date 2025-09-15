@@ -3,7 +3,7 @@
 </div>
 
 <div align="center">
-    Pei Yang<sup>&#42;</sup>&nbsp;, <a href="https://scholar.google.com/citations?user=GMrjppAAAAAJ&hl=en">Hai Ci</a><sup>&#42;</sup>&nbsp;, and <a href="https://sites.google.com/view/showlab">Mike Zheng Shou</a><sup>&#x2709</sup>
+    <a href="https://scholar.google.com/citations?user=eBvav_0AAAAJ&hl=en">Pei Yang</a><sup>&#42;</sup>&nbsp;, <a href="https://scholar.google.com/citations?user=GMrjppAAAAAJ&hl=en">Hai Ci</a><sup>&#42;</sup>&nbsp;, and <a href="https://sites.google.com/view/showlab">Mike Zheng Shou</a><sup>&#x2709</sup>
 
 </div>
 
@@ -17,11 +17,20 @@
         <img src="https://img.shields.io/badge/arXiv-2506.04135-b31b1b.svg?logo=arXiv" alt="arXiv">
     </a>
     &nbsp;
+    <a href="https://macos-world.github.io">
+        <img src="https://img.shields.io/badge/Project%20Website-EEEEEE" alt="Project Website">
+    </a>
+    &nbsp;
     <img src="https://img.shields.io/badge/AWS%20Implementation-F27E3F" />
     <p>
 </div>
 
 <img src="assets/readme/teaser.png" width="1024">
+
+<br/>
+
+## 🆕 Updates
+ - **[15 Sep 2025]** Optimised the automated benchmark execution experience; Added a GUI display for real-time benchmark progress and results
 
 <br/>
 
@@ -44,8 +53,9 @@ macOSWorld consists of a local Python testbench script and cloud-hosted AWS macO
  - **[Step 2: AWS Environmen Configuration](#step-2-aws-environment-configuration)**
  - **[Step 3: Running the Benchmark](#step-3-running-the-benchmark)**  
      - [3.1. Execute Benchmark](#31-execute-benchmark)  
-     - [3.2. Handle Interruptions](#32-handle-interruptions)  
-     - [3.3. Aggregate Results](#33-aggregate-results)
+     - [3.2. Run Testbench Manually](#32-run-testbench-manually)
+     - [3.3. Manually Handle Interruptions](#33-manually-handle-interruptions)
+     - [3.4. Monitor Progress and Aggregate Results](#34-monitor-progress-and-aggregate-results)
  - **[Step 4: Releasing AWS Resources](#step-4-releasing-aws-resources)**
 
 <br/>
@@ -139,12 +149,12 @@ export GOOGLE_APPLICATION_CREDENTIALS=🧩'/path/to/gen-lang-client-xxx.json'  #
 chmod 400 credential.pem
 
 # Run the benchmark
-python testbench.py \
+python run.py \
     --instance_id 🧩i-0d5f51a1d2bc1edb0 \
     --ssh_host 🧩ec2-13-250-104-211.ap-southeast-1.compute.amazonaws.com \
     --ssh_pkey 🧩my_credential.pem \
     --gui_agent_name 🧩gpt-4o-2024-08-06 \
-    --paths_to_eval_tasks 🧩./tasks/sys_apps ./tasks/sys_and_interface ./tasks/productivity ./tasks/media ./tasks/file_management ./tasks/advanced ./tasks/multi_apps ./tasks/safety \
+    --paths_to_eval_tasks 🧩./tasks/sys_apps ./tasks/sys_and_interface ./tasks/productivity ./tasks/media ./tasks/file_management ./tasks/advanced ./tasks/multi_apps \
     --languages 🧩task_en_env_en task_zh_env_zh task_ar_env_ar task_ja_env_ja task_ru_env_ru \
     --base_save_dir ./results/gpt_4o \
     --max-steps 15 \
@@ -183,22 +193,56 @@ python testbench.py \
 
 **Supported Language Codes**: English (`en`), Chinese (`zh`), Arabic (`ar`), Japanese (`ja`), Russian (`ru`)
 
-#### 3.2. Handle Interruptions
+**The Safety Subset:** Run it separately, because the safety subset is only provided in English.
 
-If the benchmark is interrupted or fails to complete all tasks:
+```bash
+python run.py \
+    --instance_id 🧩i-0d5f51a1d2bc1edb0 \
+    --ssh_host 🧩ec2-13-250-104-211.ap-southeast-1.compute.amazonaws.com \
+    --ssh_pkey 🧩my_credential.pem \
+    --gui_agent_name 🧩gpt-4o-2024-08-06 \
+    --paths_to_eval_tasks 🧩./tasks/safety \
+    --languages 🧩task_en_env_en \
+    --base_save_dir ./results/gpt_4o \
+    --max-steps 15 \
+    --snapshot_recovery_timeout_seconds 1200 \
+    --task_step_timeout 120
+```
+
+#### 3.2. Run Testbench Manually
+
+For debugging purposes, you can run only the testbench:
+
+```bash
+python testbench.py \
+    --instance_id 🧩i-0d5f51a1d2bc1edb0 \
+    --ssh_host 🧩ec2-13-250-104-211.ap-southeast-1.compute.amazonaws.com \
+    --ssh_pkey 🧩my_credential.pem \
+    --gui_agent_name 🧩gpt-4o-2024-08-06 \
+    --paths_to_eval_tasks 🧩./tasks/sys_apps ./tasks/sys_and_interface ./tasks/productivity ./tasks/media ./tasks/file_management ./tasks/advanced ./tasks/multi_apps \
+    --languages 🧩task_en_env_en task_zh_env_zh task_ar_env_ar task_ja_env_ja task_ru_env_ru \
+    --base_save_dir ./results/gpt_4o \
+    --max-steps 15 \
+    --snapshot_recovery_timeout_seconds 1200 \
+    --task_step_timeout 120
+```
+
+#### 3.3. Manually Handle Interruptions
+
+When the testbench is interrupted, to continue, the `base_save_dir` needs to be cleaned up first. Although the cleanup functionality is already integrated into `run.py`, you can still perform this cleanup manually. 
 
 ```bash
 python cleanup.py --base_save_dir /path/to/base_save_dir
 ```
 
-Clean up the `base_save_dir` before rerunning. Previously completed tasks will not be re-executed.
+Clean up the `base_save_dir` before rerunning the testbench. Previously completed tasks will not be deleted or re-executed.
 
-#### 3.3. Aggregate Results
+#### 3.4. Monitor Progress and Aggregate Results
 
-Use the provided Jupyter notebook to compile results:
+Use the provided Jupyter notebook to view benchmark progress and results. This notebook provides a GUI that displays benchmark progress and results through a hierarchical menu.
 
 ```
-scripts/aggregate_results.ipynb
+scripts/display_progress.ipynb
 ```
 
 <br/>
@@ -230,7 +274,7 @@ Each task evaluation takes approximately 15-20 minutes, with snapshot recovery b
 
 ### Option 2: Community Implementations
 
-Consider using community VMware-based implementations that may offer performance improvements.
+Consider using community VMware-based implementations for faster and cheaper benchmarking experiences.
 
 <br/>
 
